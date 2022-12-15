@@ -22,9 +22,10 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnChild : BaseTestSup
     }
 
     @Test
-    fun `when having an exception on doTry, the onCatch will handle the exception`() {
+    fun `when having an exception in the child onTry, the child onCatch will catch it`() {
 
-        WhenAnExceptionIsThrown(child).onTry()
+        WhenAnExceptionIsThrown(child)
+            .onTry()
 
         ThenTheExpectedPathIs(parent)
             .onTry()
@@ -39,7 +40,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnChild : BaseTestSup
     }
 
     @Test
-    fun `when having an exception on doCatch, the parentOnException() will catch the exception, but the route will fail with unhandled exceptions`() {
+    fun `when having an exception in the child onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(child)
             .onTry()
@@ -58,7 +59,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnChild : BaseTestSup
     }
 
     @Test
-    fun `when having an exception on onException, the route will fail with unhandled exceptions`() {
+    fun `when having an exception in the child onException, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -76,7 +77,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnChild : BaseTestSup
     }
 
     @Test
-    fun `when having an exception on doNext, the exception will be handled by onException`() {
+    fun `when having an exception in the child onNext, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -94,7 +95,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnChild : BaseTestSup
 
     override fun createRouteBuilders() = arrayOf(
         BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), true),
-        BaseRouteBuilder(child, lastMockUri, NoErrorHandlerBuilder(), false)
+        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), false)
     )
 }
 

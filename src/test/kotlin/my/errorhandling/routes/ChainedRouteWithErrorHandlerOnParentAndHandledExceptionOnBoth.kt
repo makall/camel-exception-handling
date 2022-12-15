@@ -23,9 +23,10 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnBoth : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on doTry, the onCatch will handle the exception`() {
+    fun `when having an exception in the child onTry, the child onCatch will catch it`() {
 
-        WhenAnExceptionIsThrown(child).onTry()
+        WhenAnExceptionIsThrown(child)
+            .onTry()
 
         ThenTheExpectedPathIs(parent)
             .onTry()
@@ -40,7 +41,7 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnBoth : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on doCatch, the parentOnException() will handle the exception`() {
+    fun `when having an exception in the child onCatch, the parent onException will catch it`() {
 
         WhenAnExceptionIsThrown(child)
             .onTry()
@@ -59,7 +60,7 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnBoth : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on onException, the route will fail with unhandled exceptions`() {
+    fun `when having an exception in the child onException, the parent onException will catch it`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -78,7 +79,7 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnBoth : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on doNext, the exception will be handled by onException`() {
+    fun `when having an exception in the child onNext, the parent onException will catch it`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -97,7 +98,7 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnBoth : BaseTestSu
 
     override fun createRouteBuilders() = arrayOf(
         BaseRouteBuilder(parent, "direct:$child", DefaultErrorHandlerBuilder().log(logger), true),
-        BaseRouteBuilder(child, lastMockUri, NoErrorHandlerBuilder(), true)
+        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), true)
     )
 }
 

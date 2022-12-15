@@ -19,7 +19,7 @@ class SingleRouteWithoutErrorHandlerAndHandledException : BaseTestSupport() {
     }
 
     @Test
-    fun `when having an exception on doTry, the exception will be handled by doCatch`() {
+    fun `when having an exception in the route onTry, the route onCatch will catch it`() {
 
         WhenAnExceptionIsThrown(route)
             .onTry()
@@ -35,7 +35,7 @@ class SingleRouteWithoutErrorHandlerAndHandledException : BaseTestSupport() {
     }
 
     @Test
-    fun `when having an exception on doCatch, the route will fail`() {
+    fun `when having an exception in the route onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(route)
             .onTry()
@@ -52,7 +52,7 @@ class SingleRouteWithoutErrorHandlerAndHandledException : BaseTestSupport() {
     }
 
     @Test
-    fun `when having an exception on onException, the route will fail`() {
+    fun `when having an exception in the route onException, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(route)
             .onNext()
@@ -68,7 +68,7 @@ class SingleRouteWithoutErrorHandlerAndHandledException : BaseTestSupport() {
     }
 
     @Test
-    fun `when having an exception on doNext, the route will fail`() {
+    fun `when having an exception in the route onNext, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(route)
             .onNext()
@@ -83,6 +83,6 @@ class SingleRouteWithoutErrorHandlerAndHandledException : BaseTestSupport() {
     }
 
     override fun createRouteBuilder() =
-        BaseRouteBuilder(route, lastMockUri, NoErrorHandlerBuilder(), true)
+        BaseRouteBuilder(route, lastMockUri(route), NoErrorHandlerBuilder(), true)
 }
 

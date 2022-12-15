@@ -22,9 +22,10 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on doTry, the onCatch will handle the exception`() {
+    fun `when having an exception in the child onTry, the child onCatch will catch it`() {
 
-        WhenAnExceptionIsThrown(child).onTry()
+        WhenAnExceptionIsThrown(child)
+            .onTry()
 
         ThenTheExpectedPathIs(parent)
             .onTry()
@@ -39,7 +40,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on doCatch, the parentOnException() will catch the exception, but the route will fail with unhandled exceptions`() {
+    fun `when having an exception in the child onCatch, the parent onException will catch it and camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
             .onTry()
@@ -60,7 +61,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on onException, the route will fail with unhandled exceptions`() {
+    fun `when having an exception in the child onException, camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -81,7 +82,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
-    fun `when having an exception on doNext, the exception will be handled by onException`() {
+    fun `when having an exception in the child onNext, the child onException will catch it`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -100,7 +101,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnParent : BaseTestSu
 
     override fun createRouteBuilders() = arrayOf(
         BaseRouteBuilder(parent, "direct:$child", DefaultErrorHandlerBuilder().log(logger), false),
-        BaseRouteBuilder(child, lastMockUri, DefaultErrorHandlerBuilder().log(logger), true)
+        BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), true)
     )
 }
 
