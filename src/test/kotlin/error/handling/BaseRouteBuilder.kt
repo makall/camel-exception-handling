@@ -1,4 +1,4 @@
-package my.errorhandling.routes
+package error.handling
 
 import org.apache.camel.ErrorHandlerFactory
 import org.apache.camel.builder.RouteBuilder

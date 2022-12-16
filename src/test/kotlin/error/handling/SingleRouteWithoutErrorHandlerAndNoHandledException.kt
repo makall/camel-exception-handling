@@ -1,4 +1,4 @@
-package my.errorhandling.routes
+package error.handling
 
 import org.apache.camel.builder.NoErrorHandlerBuilder
 import org.junit.jupiter.api.Test

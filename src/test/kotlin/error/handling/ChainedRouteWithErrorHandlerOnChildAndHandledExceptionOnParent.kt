@@ -1,10 +1,10 @@
-package my.errorhandling.routes
+package error.handling
 
 import org.apache.camel.builder.DefaultErrorHandlerBuilder
 import org.apache.camel.builder.NoErrorHandlerBuilder
 import org.junit.jupiter.api.Test
 
-class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnChild : BaseTestSupport() {
+class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestSupport() {
 
     private val parent = "parent"
     private val child = "child"
@@ -41,7 +41,7 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnChild : BaseTestS
     }
 
     @Test
-    fun `when having an exception in the child onCatch, the parent onException will catch it`() {
+    fun `when having an exception in the child onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(child)
             .onTry()
@@ -52,15 +52,15 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnChild : BaseTestS
             .onNext(child)
             .onTry()
             .onCatch()
-            .onException(parent)
 
         AndCompletionIsExpected(parent)
             .withExceptionCaught()
+            .withFailure()
             .assert()
     }
 
     @Test
-    fun `when having an exception in the child onException, the parent onException will catch it`() {
+    fun `when having an exception in the child onException, camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -71,15 +71,17 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnChild : BaseTestS
             .onNext(child)
             .onTry()
             .onNext()
-            .onException(parent)
+            .onException()
 
         AndCompletionIsExpected(parent)
+            .withUnhandledException()
             .withExceptionCaught()
+            .withFailure()
             .assert()
     }
 
     @Test
-    fun `when having an exception in the child onNext, the parent onException will catch it`() {
+    fun `when having an exception in the child onNext, the child onException will catch it`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -89,7 +91,7 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnChild : BaseTestS
             .onNext(child)
             .onTry()
             .onNext()
-            .onException(parent)
+            .onException()
 
         AndCompletionIsExpected(parent)
             .withExceptionCaught()
@@ -97,8 +99,8 @@ class ChainedRouteWithErrorHandlerOnParentAndHandledExceptionOnChild : BaseTestS
     }
 
     override fun createRouteBuilders() = arrayOf(
-        BaseRouteBuilder(parent, "direct:$child", DefaultErrorHandlerBuilder().log(logger), true),
-        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), false)
+        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), false),
+        BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), true)
     )
 }
 

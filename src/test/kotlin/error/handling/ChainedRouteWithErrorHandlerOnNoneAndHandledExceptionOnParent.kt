@@ -1,9 +1,9 @@
-package my.errorhandling.routes
+package error.handling
 
-import org.apache.camel.builder.DefaultErrorHandlerBuilder
+import org.apache.camel.builder.NoErrorHandlerBuilder
 import org.junit.jupiter.api.Test
 
-class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupport() {
+class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSupport() {
 
     private val parent = "parent"
     private val child = "child"
@@ -40,7 +40,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
     }
 
     @Test
-    fun `when having an exception in the child onCatch, the parent onException will catch it and camel will fail with unhandled exception`() {
+    fun `when having an exception in the child onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(child)
             .onTry()
@@ -51,17 +51,15 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
             .onNext(child)
             .onTry()
             .onCatch()
-            .onException(parent)
 
         AndCompletionIsExpected(parent)
-            .withUnhandledException()
             .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     @Test
-    fun `when having an exception in the child onException, camel will fail with unhandled exception`() {
+    fun `when having an exception in the child onException, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -72,17 +70,14 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
             .onNext(child)
             .onTry()
             .onNext()
-            .onException()
 
         AndCompletionIsExpected(parent)
-            .withUnhandledException()
-            .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     @Test
-    fun `when having an exception in the child onNext, the child onException will catch it and camel will fail with unhandled exception`() {
+    fun `when having an exception in the child onNext, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -92,18 +87,15 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
             .onNext(child)
             .onTry()
             .onNext()
-            .onException()
 
         AndCompletionIsExpected(parent)
-            .withUnhandledException()
-            .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     override fun createRouteBuilders() = arrayOf(
-        BaseRouteBuilder(parent, "direct:$child", DefaultErrorHandlerBuilder().log(logger), false),
-        BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), false)
+        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), false),
+        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), true)
     )
 }
 
