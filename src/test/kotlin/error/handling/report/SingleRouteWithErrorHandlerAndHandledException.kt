@@ -1,4 +1,4 @@
-package error.handling
+package error.handling.report
 
 import org.apache.camel.builder.DefaultErrorHandlerBuilder
 import org.junit.jupiter.api.Test

@@ -1,4 +1,4 @@
-package error.handling
+package error.handling.report
 
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
@@ -24,6 +24,8 @@ abstract class BaseTestSupport : CamelTestSupport() {
     private lateinit var exceptionThrowerLabel: String
     private lateinit var exceptionCatcherLabel: String
     private lateinit var reportOutput: OutputStream
+
+
 
     protected val logger = LoggerFactory.getLogger(javaClass) as Logger
 
@@ -66,7 +68,7 @@ abstract class BaseTestSupport : CamelTestSupport() {
         assertEquals(expectedTestClassName, javaClass.simpleName)
 
         reportOutput = FileOutputStream("build/reports/tests/$expectedTestClassName.csv").apply {
-            write(" $expectedTestClassName\n".toByteArray())
+            write(" ;\n $expectedTestClassName\n".toByteArray())
             write(" parent with ; ; child with ; ; exception ; ; result\n".toByteArray())
             write(" error handler ; handled exception ; error handler ; handled exception ;".toByteArray())
             write(" thrown at ; caught at ; was caught ; with failure ; with uncaught exception; test\n".toByteArray())
@@ -92,7 +94,6 @@ abstract class BaseTestSupport : CamelTestSupport() {
     }
 
 
-    private fun Exchange.hasFailed() = (exception != null)
     private fun Exchange.hasExceptionCaught() = (getProperty(Exchange.EXCEPTION_CAUGHT) != null)
 
     private fun StringBuilder.smartAppend(conditional: Boolean, item: String, orElse: String = "") {
@@ -196,9 +197,9 @@ abstract class BaseTestSupport : CamelTestSupport() {
                 smartAppend(expectedTestClassName.contains("SingleRouteWithErrorHandler"), "x ")
                 append(";")
                 smartAppend(expectedTestClassName.contains("ExceptionOnBoth|ExceptionOnParent".toRegex()), "x ")
+                smartAppend(expectedTestClassName.contains("Single.*AndHandledException".toRegex()), "x ")
                 append(";")
                 smartAppend(expectedTestClassName.contains("HandlerOnBoth|HandlerOnChild".toRegex()), "x ")
-                smartAppend(expectedTestClassName.contains("Single.*HandledException"), "x ")
                 append(";")
                 smartAppend(expectedTestClassName.contains("ExceptionOnBoth|ExceptionOnChild".toRegex()), "x ")
                 append("; $exceptionThrowerLabel ; $exceptionCatcherLabel ;")
@@ -225,7 +226,7 @@ abstract class BaseTestSupport : CamelTestSupport() {
             assertEquals(expectedTestMethodName, methodName)
 
             assertMockEndpointsSatisfied()
-            assertEquals(hasFailed, exchange.hasFailed())
+            assertEquals(hasFailed, exchange.isFailed)
             assertEquals(hasExceptionCaught, exchange.hasExceptionCaught())
             assertEquals(hasUnhandledException, unhandledExceptionCaught())
 

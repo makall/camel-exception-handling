@@ -1,9 +1,10 @@
-package error.handling
+package error.handling.report
 
+import org.apache.camel.builder.DefaultErrorHandlerBuilder
 import org.apache.camel.builder.NoErrorHandlerBuilder
 import org.junit.jupiter.api.Test
 
-class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSupport() {
+class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnChild : BaseTestSupport() {
 
     private val parent = "parent"
     private val child = "child"
@@ -59,7 +60,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
-    fun `when having an exception in the child onException, camel will fail with no exception caught`() {
+    fun `when having an exception in the child onException, camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -70,14 +71,17 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
             .onNext(child)
             .onTry()
             .onNext()
+            .onException()
 
         AndCompletionIsExpected(parent)
+            .withUnhandledException()
+            .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     @Test
-    fun `when having an exception in the child onNext, camel will fail with no exception caught`() {
+    fun `when having an exception in the child onNext, the child onException will catch it and camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -87,15 +91,18 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
             .onNext(child)
             .onTry()
             .onNext()
+            .onException()
 
         AndCompletionIsExpected(parent)
+            .withUnhandledException()
+            .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     override fun createRouteBuilders() = arrayOf(
-        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), false),
-        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), true)
+        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), true),
+        BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), false)
     )
 }
 

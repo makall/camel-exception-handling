@@ -1,9 +1,9 @@
-package error.handling
+package error.handling.report
 
-import org.apache.camel.builder.DefaultErrorHandlerBuilder
+import org.apache.camel.builder.NoErrorHandlerBuilder
 import org.junit.jupiter.api.Test
 
-class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
+class SingleRouteWithoutErrorHandlerAndNoHandledException : BaseTestSupport() {
 
     private val route = "route"
 
@@ -52,7 +52,7 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
     }
 
     @Test
-    fun `when having an exception in the route onException, camel will fail with unhandled exception`() {
+    fun `when having an exception in the route onException, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(route)
             .onNext()
@@ -61,17 +61,14 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
         ThenTheExpectedPathIs(route)
             .onTry()
             .onNext()
-            .onException()
 
         AndCompletionIsExpected(route)
-            .withUnhandledException()
-            .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     @Test
-    fun `when having an exception in the route onNext, the route onException will catch it and camel will fail with unhandled exception`() {
+    fun `when having an exception in the route onNext, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(route)
             .onNext()
@@ -79,16 +76,13 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
         ThenTheExpectedPathIs(route)
             .onTry()
             .onNext()
-            .onException()
 
         AndCompletionIsExpected(route)
-            .withUnhandledException()
-            .withExceptionCaught()
             .withFailure()
             .assert()
     }
 
     override fun createRouteBuilder() =
-        BaseRouteBuilder(route, lastMockUri(route), DefaultErrorHandlerBuilder().log(logger), false)
+        BaseRouteBuilder(route, lastMockUri(route), NoErrorHandlerBuilder(), false)
 }
 

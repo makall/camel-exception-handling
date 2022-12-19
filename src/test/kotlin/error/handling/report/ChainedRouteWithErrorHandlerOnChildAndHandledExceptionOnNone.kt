@@ -1,10 +1,10 @@
-package error.handling
+package error.handling.report
 
 import org.apache.camel.builder.DefaultErrorHandlerBuilder
 import org.apache.camel.builder.NoErrorHandlerBuilder
 import org.junit.jupiter.api.Test
 
-class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnChild : BaseTestSupport() {
+class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnNone : BaseTestSupport() {
 
     private val parent = "parent"
     private val child = "child"
@@ -101,7 +101,7 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnChild : BaseTestSu
     }
 
     override fun createRouteBuilders() = arrayOf(
-        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), true),
+        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), false),
         BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), false)
     )
 }
