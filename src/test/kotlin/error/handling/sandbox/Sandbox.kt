@@ -10,7 +10,6 @@ import org.apache.camel.processor.errorhandler.DefaultErrorHandler
 import org.apache.camel.support.DefaultExchange
 import org.apache.camel.test.junit5.CamelTestSupport
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -25,7 +24,7 @@ class Sandbox : CamelTestSupport() {
     }
 
     @Test
-    fun `expected result` () {
+    fun `expected result`() {
         val exchange = template.send(Root.ROUTE_URI, DefaultExchange(context))
         assertTrue(exchange.isFailed)
         assertEquals(Leaf.ROUTE_ID, exchange.exception.message)

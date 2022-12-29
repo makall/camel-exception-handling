@@ -1,6 +1,7 @@
 package error.handling.report
 
 import org.apache.camel.builder.DefaultErrorHandlerBuilder
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 
 class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupport() {
@@ -9,6 +10,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
     private val child = "child"
 
     @Test
+    @Order(1)
     fun `should be successful if no exception is thrown`() {
 
         ThenTheExpectedPathIs(parent)
@@ -22,6 +24,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
     }
 
     @Test
+    @Order(2)
     fun `when having an exception in the child onTry, the child onCatch will catch it`() {
 
         WhenAnExceptionIsThrown(child)
@@ -40,6 +43,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
     }
 
     @Test
+    @Order(3)
     fun `when having an exception in the child onCatch, the parent onException will catch it and camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
@@ -61,6 +65,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
     }
 
     @Test
+    @Order(5)
     fun `when having an exception in the child onException, camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
@@ -82,6 +87,7 @@ class ChainedRouteWithErrorHandlerOnBothAndHandledExceptionOnNone : BaseTestSupp
     }
 
     @Test
+    @Order(4)
     fun `when having an exception in the child onNext, the child onException will catch it and camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)

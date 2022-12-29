@@ -1,6 +1,7 @@
 package error.handling.report
 
 import org.apache.camel.builder.NoErrorHandlerBuilder
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 
 class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSupport() {
@@ -9,6 +10,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     private val child = "child"
 
     @Test
+    @Order(1)
     fun `should be successful if no exception is thrown`() {
 
         ThenTheExpectedPathIs(parent)
@@ -22,6 +24,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
+    @Order(2)
     fun `when having an exception in the child onTry, the child onCatch will catch it`() {
 
         WhenAnExceptionIsThrown(child)
@@ -40,6 +43,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
+    @Order(3)
     fun `when having an exception in the child onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(child)
@@ -59,6 +63,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
+    @Order(5)
     fun `when having an exception in the child onException, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(child)
@@ -77,6 +82,7 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     }
 
     @Test
+    @Order(4)
     fun `when having an exception in the child onNext, camel will fail with no exception caught`() {
 
         WhenAnExceptionIsThrown(child)
@@ -94,8 +100,8 @@ class ChainedRouteWithErrorHandlerOnNoneAndHandledExceptionOnParent : BaseTestSu
     }
 
     override fun createRouteBuilders() = arrayOf(
-        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), false),
-        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), true)
+        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), true),
+        BaseRouteBuilder(child, lastMockUri(child), NoErrorHandlerBuilder(), false)
     )
 }
 

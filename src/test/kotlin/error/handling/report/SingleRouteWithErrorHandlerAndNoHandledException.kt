@@ -1,6 +1,7 @@
 package error.handling.report
 
 import org.apache.camel.builder.DefaultErrorHandlerBuilder
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 
 class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
@@ -8,6 +9,7 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
     private val route = "route"
 
     @Test
+    @Order(1)
     fun `should be successful if no exception is thrown`() {
 
         ThenTheExpectedPathIs(route)
@@ -19,6 +21,7 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
     }
 
     @Test
+    @Order(2)
     fun `when having an exception in the route onTry, the route onCatch will catch it`() {
 
         WhenAnExceptionIsThrown(route)
@@ -35,6 +38,7 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
     }
 
     @Test
+    @Order(3)
     fun `when having an exception in the route onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(route)
@@ -52,6 +56,7 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
     }
 
     @Test
+    @Order(5)
     fun `when having an exception in the route onException, camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(route)
@@ -71,6 +76,7 @@ class SingleRouteWithErrorHandlerAndNoHandledException : BaseTestSupport() {
     }
 
     @Test
+    @Order(4)
     fun `when having an exception in the route onNext, the route onException will catch it and camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(route)

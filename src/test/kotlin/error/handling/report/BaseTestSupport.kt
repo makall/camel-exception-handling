@@ -13,19 +13,20 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestMethodOrder
 import org.slf4j.LoggerFactory
 import java.io.FileOutputStream
 import java.io.OutputStream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 abstract class BaseTestSupport : CamelTestSupport() {
 
     private lateinit var exceptionThrowerLabel: String
     private lateinit var exceptionCatcherLabel: String
     private lateinit var reportOutput: OutputStream
-
-
 
     protected val logger = LoggerFactory.getLogger(javaClass) as Logger
 
@@ -49,7 +50,7 @@ abstract class BaseTestSupport : CamelTestSupport() {
                 when {
                     builders.all { it.handledException } -> "Both"
                     !builders.any { it.handledException } -> "None"
-                    else -> builders.first { !it.handledException }.routeId
+                    else -> builders.first { it.handledException }.routeId
                 }.let { append("AndHandledExceptionOn${it.replaceFirstChar(Char::titlecase)}") }
             }
             .toString()

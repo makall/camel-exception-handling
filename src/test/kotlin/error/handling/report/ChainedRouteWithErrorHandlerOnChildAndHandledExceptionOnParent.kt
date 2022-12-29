@@ -2,6 +2,7 @@ package error.handling.report
 
 import org.apache.camel.builder.DefaultErrorHandlerBuilder
 import org.apache.camel.builder.NoErrorHandlerBuilder
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 
 class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestSupport() {
@@ -10,6 +11,7 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestS
     private val child = "child"
 
     @Test
+    @Order(1)
     fun `should be successful if no exception is thrown`() {
 
         ThenTheExpectedPathIs(parent)
@@ -23,6 +25,7 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestS
     }
 
     @Test
+    @Order(2)
     fun `when having an exception in the child onTry, the child onCatch will catch it`() {
 
         WhenAnExceptionIsThrown(child)
@@ -41,6 +44,7 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestS
     }
 
     @Test
+    @Order(3)
     fun `when having an exception in the child onCatch, camel will fail`() {
 
         WhenAnExceptionIsThrown(child)
@@ -60,6 +64,7 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestS
     }
 
     @Test
+    @Order(5)
     fun `when having an exception in the child onException, camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
@@ -81,7 +86,8 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestS
     }
 
     @Test
-    fun `when having an exception in the child onNext, the child onException will catch it`() {
+    @Order(4)
+    fun `when having an exception in the child onNext, the child onException will catch it and camel will fail with unhandled exception`() {
 
         WhenAnExceptionIsThrown(child)
             .onNext()
@@ -94,13 +100,15 @@ class ChainedRouteWithErrorHandlerOnChildAndHandledExceptionOnParent : BaseTestS
             .onException()
 
         AndCompletionIsExpected(parent)
+            .withUnhandledException()
             .withExceptionCaught()
+            .withFailure()
             .assert()
     }
 
     override fun createRouteBuilders() = arrayOf(
-        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), false),
-        BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), true)
+        BaseRouteBuilder(parent, "direct:$child", NoErrorHandlerBuilder(), true),
+        BaseRouteBuilder(child, lastMockUri(child), DefaultErrorHandlerBuilder().log(logger), false)
     )
 }
 
